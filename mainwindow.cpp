@@ -1714,10 +1714,21 @@ void MainWindow::on_buttonProcessingLoad_clicked()
 
     QString filename;
     QString name;
+
+    sData *data = new sData;
+    name = ui->listProcessingAdd->item(0)->text();
+    filename = workDirectory+"/"+name;
+    LoadFilename(data,filename);
+    dataProcessing->x = data->x;
+    dataProcessing->y = data->y;
+    dataProcessing->init();
+    delete [] data;
+
+
     for(int l=0;l<ui->listProcessingAdd->count();l++){
         name = ui->listProcessingAdd->item(l)->text();
         filename = workDirectory+"/"+name;
-        sData *data = new sData;
+        data = new sData;
         LoadFilename(data,filename);
         for(int i=0;i<data->x;i++){
             for(int j=0;j<data->y;j++){
