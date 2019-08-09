@@ -433,13 +433,14 @@ void MainWindow::ReadMyFormat(sData *data, QString filename){
 
     QXmlStreamReader xml(&f);
 
-    data->x=128;
-    data->y=data->x;
-    data->init();
-
     while(!xml.atEnd() && !xml.hasError()){
         xml.readNext();
         if(xml.isStartElement()){
+            if(xml.name()=="Init"){
+                data->x = xml.readElementText().toInt();
+                data->y = data->x;
+                data->init();
+            }
             if(xml.name()=="MagneticFild"){
                 Parametrs.magnetic_fild = xml.readElementText().toDouble();
             }
@@ -466,8 +467,8 @@ void MainWindow::ReadMyFormat(sData *data, QString filename){
                 tmp = xml.readElementText();
                 tmpList = tmp.split(';');
                 k=0;
-                for(int i=0;i<128;i++){
-                    for(int j=0;j<128;j++){
+                for(int i=0;i<data->x;i++){
+                    for(int j=0;j<data->y;j++){
                         data->data[i][j] = QString(tmpList.at(k)).toDouble();
                         k++;
                     }
