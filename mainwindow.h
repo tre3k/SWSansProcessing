@@ -10,6 +10,8 @@
 #include "iqcustomplot.h"
 #include "windowplot.h"
 
+#define DIVCOEFF
+
 #define UPDATE_CROSS QCPRange rangeX,rangeY;\
                      rangeX = plotKs2D->xAxis->range();\
                      rangeY = plotKs2D->yAxis->range();\

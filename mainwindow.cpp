@@ -560,6 +560,7 @@ void MainWindow::ReadNXS(sData *data, QString filename){
     int *tmp_data;
 
     /* read second txt file */
+    /*
     QString secondName = filename.split(".nxs").at(0);
 
     qDebug () << secondName;
@@ -576,6 +577,7 @@ void MainWindow::ReadNXS(sData *data, QString filename){
     while(!sstream.atEnd()){
         k++;
         tmp = sstream.readLine();
+        qDebug() << tmp;
         if(k > 60 && k<87){
             sinfo.append(tmp.split(" "));
             j++;
@@ -607,13 +609,65 @@ void MainWindow::ReadNXS(sData *data, QString filename){
     Parametrs.coeff = Parametrs.monitor1/Parametrs.time_exposition;
     qDebug () << "coeff = " << Parametrs.coeff;
 
-    /* Read NXS */
+    */
+
+    /* Read NXS  For D33*/
     k=0;
     const H5std_string FILE_NAME(filename.toStdString());
-    const H5std_string DATASET_NAME("/entry0/D11/detector/data");
+    const H5std_string DATASET_NAME("/entry0/D33/detector/data1");
+    //const H5std_string DATASET_NAME("/entry0/D11/detector/data");
     //const H5std_string DATASET_NAME("IntArray");
     H5File f(FILE_NAME,H5F_ACC_RDONLY);
     DataSet dataset = f.openDataSet(DATASET_NAME);
+
+    /* get properies of experement */
+    float time_value;
+    DataSet dataset_time = f.openDataSet("/entry0/duration");
+    dataset_time.read(&time_value,PredType::NATIVE_FLOAT);
+    Parametrs.time_exposition = time_value;
+
+    float temperature_value;
+    DataSet dataset_temperature = f.openDataSet("/entry0/sample/temperature");
+    dataset_temperature.read(&temperature_value,PredType::NATIVE_FLOAT);
+    Parametrs.temperature = temperature_value;
+    qDebug() << "temperature: " << Parametrs.temperature << "K";
+
+    float field_value;
+    DataSet dataset_field = f.openDataSet("/entry0/sample/field_actual");
+    dataset_field.read(&field_value,PredType::NATIVE_FLOAT);
+    Parametrs.magnetic_fild = field_value;
+    qDebug() << "filed: " << field_value << "T";
+
+
+    float DS_value;
+    DataSet dataset_DS = f.openDataSet("/entry0/D33/detector/det2_actual");
+    dataset_DS.read(&DS_value,PredType::NATIVE_FLOAT);
+    Parametrs.long_sample_detector = DS_value;
+    qDebug() << "DS: " << Parametrs.long_sample_detector << " m";
+
+
+    Parametrs.size_of_pixel_mm = 5;
+
+    float lambda_value;
+    DataSet dataset_lambda = f.openDataSet("/entry0/D33/selector/wavelength");
+    dataset_lambda.read(&lambda_value,PredType::NATIVE_FLOAT);
+    Parametrs.lambdaA = (double)lambda_value;
+    qDebug() << "wavelength: " << Parametrs.lambdaA;
+
+    int monitor_value;
+    DataSet dataset_monitor = f.openDataSet("/entry0/monitor1/data");
+    dataset_monitor.read(&monitor_value,PredType::NATIVE_INT);
+    Parametrs.monitor1 = (double)monitor_value;
+    qDebug() << "monitro1 : " <<  Parametrs.monitor1;
+
+
+    float neutron_sum;
+    DataSet dataset_detsum = f.openDataSet("/entry0/D33/detector/detsum");
+    dataset_detsum.read(&neutron_sum,PredType::NATIVE_FLOAT);
+    Parametrs.fromfileSumNeutron =  neutron_sum;
+    qDebug() << "detsum: " << Parametrs.fromfileSumNeutron;
+
+    Parametrs.coeff = Parametrs.monitor1/Parametrs.time_exposition;
 
     H5F_info2_t info;
     f.getFileInfo(info);
@@ -633,28 +687,57 @@ void MainWindow::ReadNXS(sData *data, QString filename){
 
     int ndims = dataspace.getSimpleExtentDims( dims_out, NULL);
 
+    int tmp_x,tmp_y;
     if(rank>=2){
+        /*
         data->x = (int) dims_out[0];
         data->y = (int) dims_out[1];
+        */
+        tmp_x = (int) dims_out[0];
+        tmp_y = (int) dims_out[1];
     }
-    qDebug () << data->x << "x" << data->y;
+    qDebug () << tmp_x << "x" << tmp_y;
+
+    if(tmp_x >= tmp_y){
+        data->x = tmp_y;
+    }else{
+        data->x = tmp_x;
+    }
+    data->y = data->x;
+
+    qDebug() << "set size to: " << data->x << "x" << data->y;
+
     data->init();
 
-    tmp_data = new int [data->x*data->y];
+    tmp_data = new int [tmp_x*tmp_y];       // tmp_x = 2*data->x; for D33!
+    sData *tmp_sdata = new sData;
+    tmp_sdata->x = tmp_x;
+    tmp_sdata->y = tmp_y;
+    tmp_sdata->init();
 
     dataset.read(tmp_data,PredType::NATIVE_INT);
 
-    for(int i=0;i<data->x;i++){
-        for(int j=0;j<data->y;j++){
-#ifndef DIVCOEFF
-            data->data[i][j] = tmp_data[k];
-#else
-            data->data[i][j] = tmp_data[k]/Parametrs.coeff;
-#endif
+    for(int i=0;i<tmp_x;i++){
+        for(int j=0;j<tmp_y;j++){
+            tmp_sdata->data[i][j] = tmp_data[k];
             k++;
         }
     }
 
+
+    for(int i=0;i<data->x;i++){
+        for(int j=0;j<data->y;j++){
+#ifndef DIVCOEFF
+            data->data[i][j] = tmp_sdata[i][j];
+#else
+            data->data[i][j] = (tmp_sdata->data[2*i][j]+tmp_sdata->data[2*i+1][j])/Parametrs.coeff;
+#endif
+        }
+    }
+
+
+    //tmp_sdata->clear();
+    delete tmp_sdata;
     delete [] tmp_data;
     f.close();
 
