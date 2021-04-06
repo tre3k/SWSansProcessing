@@ -698,6 +698,14 @@ void windowPlot::exportToTxt(QString filename){
         break;
     }
 
+    stream << "\n" " << " << QString::number(vXs.size()) << " points\n";
+    stream << "# x\tLeft\tErr\tRight\tErr\tAmount\tErr\n";
+    for(int i=0;i<vXs.size();i++){
+        stream << vXs.at(i) << "\t" << vY1.at(i) << "\t" << vErr1.at(i) << "\t" << vY2.at(i) << "\t" << vErr2.at(i) << vYs.at(i) << "\t" << vErr_s.at(i) << "\n";
+    }
+
+    // Old format
+    /*
     stream << "\n# Left (" << QString::number(vX1.size()) << " points)\n";
     stream << "# x\ty\terr\n";
 
@@ -716,6 +724,7 @@ void windowPlot::exportToTxt(QString filename){
     for(int i=0;i<vXs.size();i++){
         stream << vXs.at(i) << "\t" << vYs.at(i) << "\t" << vErr_s.at(i) << "\n";
     }
+    */
 
     f.close();
 }

@@ -459,6 +459,9 @@ void MainWindow::ReadMyFormat(sData *data, QString filename){
             if(xml.name()=="Lambda"){
                 Parametrs.lambdaA = xml.readElementText().toDouble();
             }
+            if(xml.name()=="Temperature"){
+                Parametrs.temperature = xml.readElementText().toDouble();
+            }
 
             Parametrs.fromfileSumNeutron = 10;
             Parametrs.coeff = Parametrs.fromfileSumNeutron/Parametrs.time_exposition;
