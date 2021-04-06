@@ -178,9 +178,9 @@ void windowPlot::slot_loadVariables(sWindowPlotVariables var){
 void windowPlot::updatePlot(){
 
     int minIndex;
-    vErr1.clear(); vErr2.clear(); vErr_s.clear();
-    vX1.clear(); vX2.clear(); vXs.clear();
-    vY1.clear(); vY2.clear(); vYs.clear();
+    vErr1.clear(); vErr2.clear(); vErr_s.clear(); vErr_sub.clear();
+    vX1.clear(); vX2.clear(); vXs.clear(); //use vXs for this (vXsub.clear());
+    vY1.clear(); vY2.clear(); vYs.clear(); vYsub.clear();
 
     switch(unit_x){
     case UNITX_PIX:
@@ -231,6 +231,9 @@ void windowPlot::updatePlot(){
     }
     for(int i=0;i<minIndex;i++) vYs.append(vY1.at(i)+vY2.at(i));
     for(int i=0;i<minIndex;i++) vErr_s.append(vErr1.at(i)+vErr2.at(i));
+
+    for(int i=0;i<minIndex;i++) vYsub.append(vY1.at(i)-vY2.at(i));
+    for(int i=0;i<minIndex;i++) vErr_sub.append(vErr1.at(i)+vErr2.at(i));
 
     plot->clearGraphs();
     errorBar1->data()->clear();
@@ -698,10 +701,10 @@ void windowPlot::exportToTxt(QString filename){
         break;
     }
 
-    stream << "\n" " << " << QString::number(vXs.size()) << " points\n";
-    stream << "# x\tLeft\tErr\tRight\tErr\tAmount\tErr\n";
+    stream << "\n" "# " << QString::number(vXs.size()) << " points\n";
+    stream << "# x\tLeft\tErr\tRight\tErr\tAmount\tErr\tSubtract\tErr\n";
     for(int i=0;i<vXs.size();i++){
-        stream << vXs.at(i) << "\t" << vY1.at(i) << "\t" << vErr1.at(i) << "\t" << vY2.at(i) << "\t" << vErr2.at(i) << vYs.at(i) << "\t" << vErr_s.at(i) << "\n";
+        stream << vXs.at(i) << " " << vY1.at(i) << " " << vErr1.at(i) << " " << vY2.at(i) << " " << vErr2.at(i) << " " << vYs.at(i) << " " << vErr_s.at(i) << " " << vYsub.at(i) << " " << vErr_sub.at(i) << "\n";
     }
 
     // Old format

@@ -78,8 +78,8 @@ public:
 
     /* mainPlot */
     QVector<double> vX1,vX2,vXs;
-    QVector<double> vY1,vY2,vYs;
-    QVector<double> vErr1,vErr2,vErr_s;
+    QVector<double> vY1,vY2,vYs,vYsub;
+    QVector<double> vErr1,vErr2,vErr_s,vErr_sub;
     QCPErrorBars *errorBar1, *errorBar2, *errorBar_s;
     iQCustomPlot *plot;
 

@@ -464,7 +464,8 @@ void MainWindow::ReadMyFormat(sData *data, QString filename){
             }
 
             Parametrs.fromfileSumNeutron = 10;
-            Parametrs.coeff = Parametrs.fromfileSumNeutron/Parametrs.time_exposition;
+            //Parametrs.coeff = Parametrs.fromfileSumNeutron/Parametrs.time_exposition;
+            Parametrs.coeff = Parametrs.monitor1/Parametrs.time_exposition;
 
             if(xml.name()=="Data"){
                 tmp = xml.readElementText();
