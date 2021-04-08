@@ -9,10 +9,12 @@ TEMPLATE = app
 INCLUDEPATH = includes/
 
 
-SOURCES += src/main.cpp
+SOURCES += src/main.cpp \
+           src/mainwindow.cpp
 
 
-HEADERS += includes/main.h
+HEADERS += includes/main.h \
+           includes/mainwindow.h
 
 
 
