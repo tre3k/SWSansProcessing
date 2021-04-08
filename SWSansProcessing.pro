@@ -6,6 +6,14 @@ QT += core gui widgets printsupport
 TARGET = swsansprocessing
 TEMPLATE = app
 
-SOURCES = main.cpp
+INCLUDEPATH = includes/
+
+
+SOURCES += src/main.cpp
+
+
+HEADERS += includes/main.h
+
+
 
 
