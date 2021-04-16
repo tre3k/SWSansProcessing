@@ -19,6 +19,10 @@ GeneralPlot::GeneralPlot()
         connect(this->xAxis, SIGNAL(rangeChanged(QCPRange)),this->xAxis2, SLOT(setRange(QCPRange)));
         connect(this->yAxis, SIGNAL(rangeChanged(QCPRange)), this->yAxis2, SLOT(setRange(QCPRange)));
 
+        connect(this,SIGNAL(axisClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)),this,SLOT(sAxies_drag_zoom(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)));
+        connect(this,SIGNAL(mouseDoubleClick(QMouseEvent*)),this,SLOT(full_drag_zoom(QMouseEvent*)));
+        connect(this,SIGNAL(selectionChangedByUser()),this,SLOT(selectionChanged()));
+
 
         // Enable cutom context menu
         this->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -26,7 +30,7 @@ GeneralPlot::GeneralPlot()
 
 
 
-        QLocale locale("en_EN.UTF-8");                  //чтобы была точка заместо запятой в числах на графике
+        QLocale locale(GeneralSetup::number_locale);
         this->setLocale(locale);
 }
 
@@ -105,3 +109,48 @@ void GeneralPlot::exportToPNG(){
         if(filename!=nullptr) this->savePng(filename);
 }
 
+
+
+void GeneralPlot::sAxies_drag_zoom(QCPAxis* sAxis,QCPAxis::SelectablePart part,QMouseEvent* event){
+        this->axisRect()->setRangeDrag(sAxis->orientation());
+        this->axisRect()->setRangeZoom(sAxis->orientation());
+        return;
+}
+
+void GeneralPlot::full_drag_zoom(QMouseEvent *mouseEvent){
+        this->axisRect()->setRangeDrag(this->xAxis->orientation()|
+                                       this->yAxis->orientation());
+        this->axisRect()->setRangeZoom(this->xAxis->orientation()|
+                                       this->yAxis->orientation());
+        return;
+}
+
+void GeneralPlot::selectionChanged(){
+        if (this->xAxis->selectedParts().testFlag(QCPAxis::spAxis) || this->xAxis->selectedParts().testFlag(QCPAxis::spTickLabels) ||
+                        this->xAxis2->selectedParts().testFlag(QCPAxis::spAxis) || this->xAxis2->selectedParts().testFlag(QCPAxis::spTickLabels))
+        {
+                this->xAxis2->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
+                this->xAxis->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
+        }
+
+        // make left and right axes be selected synchronously, and handle axis and tick labels as one selectable object:
+        if (this->yAxis->selectedParts().testFlag(QCPAxis::spAxis) || this->yAxis->selectedParts().testFlag(QCPAxis::spTickLabels) ||
+                        this->yAxis2->selectedParts().testFlag(QCPAxis::spAxis) || this->yAxis2->selectedParts().testFlag(QCPAxis::spTickLabels))
+        {
+                this->yAxis2->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
+                this->yAxis->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
+        }
+
+        // synchronize selection of graphs with selection of corresponding legend items:
+        for (int i=0; i<this->graphCount(); ++i)
+        {
+                QCPGraph *graph = this->graph(i);
+                QCPPlottableLegendItem *item = this->legend->itemWithPlottable(graph);
+                if (item->selected() || graph->selected())
+                {
+                        item->setSelected(true);
+                        graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
+                }
+        }
+        return;
+}

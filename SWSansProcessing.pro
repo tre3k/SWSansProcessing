@@ -10,6 +10,7 @@ INCLUDEPATH = includes/
 
 
 SOURCES += src/main.cpp \
+           src/centralwidget.cpp \
            src/generalplot.cpp \
            src/generalsetup.cpp \
            src/mainwindow.cpp \
@@ -17,6 +18,7 @@ SOURCES += src/main.cpp \
 
 
 HEADERS += includes/main.h \
+           includes/centralwidget.h \
            includes/generalplot.h \
            includes/generalsetup.h \
            includes/mainwindow.h \
