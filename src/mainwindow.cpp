@@ -8,5 +8,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
         this->setWindowTitle("SW SANS Processing");
 
+        auto gp = new GeneralPlot();
+        this->setCentralWidget(gp);
 
 }

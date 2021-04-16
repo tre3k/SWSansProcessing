@@ -10,11 +10,17 @@ INCLUDEPATH = includes/
 
 
 SOURCES += src/main.cpp \
-           src/mainwindow.cpp
+           src/generalplot.cpp \
+           src/generalsetup.cpp \
+           src/mainwindow.cpp \
+           src/qcustomplot.cpp
 
 
 HEADERS += includes/main.h \
-           includes/mainwindow.h
+           includes/generalplot.h \
+           includes/generalsetup.h \
+           includes/mainwindow.h \
+           includes/qcustomplot.h
 
 
 

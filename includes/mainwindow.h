@@ -7,6 +7,9 @@
 
 #include <QMainWindow>
 
+#include <qcustomplot.h>
+#include <generalplot.h>
+
 class MainWindow : public QMainWindow
 {
         Q_OBJECT
